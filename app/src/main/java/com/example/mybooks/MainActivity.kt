@@ -4,28 +4,40 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.example.mybooks.API.BookApi
+import com.example.mybooks.API.BookResponse
+import com.example.mybooks.API.BookTransform
+import com.example.mybooks.view.FragmentDiscovered
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-class MainActivity : AppCompatActivity() {
+private const val NUM_PAGES  = 3
+class MainActivity : FragmentActivity() {
+
+    private lateinit var viePager: ViewPager2
+
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        viePager = findViewById(R.id.pager)
+        val pagerAdapter = BookPagerAdapter(this)
+        viePager.adapter = pagerAdapter
+    }
 
-        BookApi.instance()
-            .getBooks("Lord of the rings")
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .doOnError {
-                Log.d("aa", it.message.toString())
-            }
-            .map {
-                it.body()
-            }
-            .subscribe { it->
-                it?.books?.forEach {
-                    Log.d("aa", "${it.title_suggest} - ${if(it.author_name?.get(0) != null) it.author_name[0] else " "} -  ${it.publishers?.get(0)} - ${it.subjects?.get(0)}")
-                }
-            }
+
+
+    inner class BookPagerAdapter(fa: FragmentActivity): FragmentStateAdapter(fa){
+        override fun getItemCount(): Int {
+            return NUM_PAGES
+        }
+
+        override fun createFragment(position: Int): Fragment {
+          return  FragmentDiscovered()
+        }
+
     }
 }
