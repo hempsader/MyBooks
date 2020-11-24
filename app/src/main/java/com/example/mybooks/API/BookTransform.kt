@@ -1,14 +1,19 @@
 package com.example.mybooks.API
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 
 class BookTransform {
-    data class BookPojo(val bookTitle: String?,  val author: String?,  val publisher: String?,  val subject: String?)
+    @Entity(tableName = "books")
+    data class BookPojo(@PrimaryKey val id: Long = 0, val bookTitle: String?, val author: String?, val publisher: String?, val subject: String?)
     companion object{
         fun transform(response: BookResponse): List<BookPojo>{
             var author = "Unknown Author"
             var bookTitle = "Unknown Title"
             var publisher = "Unknown Publisher"
             var subject = "Unknown Subject"
+            var lastModified: Long = 0
             val listBooks = mutableListOf<BookPojo>()
             response.books
                 ?.map {
@@ -24,7 +29,8 @@ class BookTransform {
                     if(it.subjects != null){
                         subject = it.subjects[0]
                     }
-                    listBooks.add(BookPojo(bookTitle,author,publisher,subject))
+                    lastModified = it.id
+                    listBooks.add(BookPojo(lastModified,bookTitle,author,publisher,subject))
                 }
             return listBooks
         }

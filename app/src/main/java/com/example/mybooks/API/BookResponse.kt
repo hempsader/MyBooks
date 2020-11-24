@@ -8,8 +8,6 @@ class BookResponse (
                     val numFound: Int? = 0,
                     @SerializedName("docs")
                     val books: List<Book>? = emptyList()){
-    data class Book(val title_suggest: String, val author_name: List<String>?, @SerializedName("subject") val subjects: List<String>?,@SerializedName("publisher") val publishers: List<String>?)
+    data class Book(@SerializedName("last_modified_i") val id: Long , val title_suggest: String, val author_name: List<String>?, @SerializedName("subject") val subjects: List<String>?, @SerializedName("publisher") val publishers: List<String>?)
 }
 
-data class Subject( val subject: String)
-data class Published( val publisher: String)

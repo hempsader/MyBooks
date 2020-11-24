@@ -14,13 +14,6 @@ interface BookApi {
 
     companion object{
         fun instance(): BookApi{
-        //    val logging = HttpLoggingInterceptor()
-        //    logging.level = HttpLoggingInterceptor.Level.BODY
-
-            val client = OkHttpClient.Builder()
-            //    .addInterceptor(logging)
-                .build()
-
           val retro =   Retrofit.Builder()
                 .baseUrl("http://openlibrary.org/")
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -31,5 +24,5 @@ interface BookApi {
     }
 
     @GET("search.json/")
-    fun getBooks(@Query("q") q: String): io.reactivex.Single<retrofit2.Response<BookResponse>>
+    fun getBooks(@Query("q") q: String?): io.reactivex.Single<retrofit2.Response<BookResponse>>
 }
