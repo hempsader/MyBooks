@@ -1,6 +1,7 @@
 package com.example.mybooks.logic
 
 import android.content.Context
+import android.util.Log
 import com.example.mybooks.API.BookApi
 import com.example.mybooks.API.BookTransform
 import com.example.mybooks.db.BookDatabase
@@ -22,14 +23,17 @@ class Repository (private val context: Context){
 
     fun deleteBooks(): Completable? = dao?.deleteAll()
 
-    fun getAllBooks(): Observable<List<BookTransform.BookPojo>>? = dao?.getAllBooks()
+    fun getAllBooks(): Observable<List<BookTransform.BookPojo>> = dao?.getAllBooks()!!
 
-    fun bookApi(title: String? = ""): Single<List<BookTransform.BookPojo>>? {
+    fun bookApi(title: String? = ""): Single<List<BookTransform.BookPojo>> {
         return BookApi.instance().getBooks(title)
-                .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
             .map {
-                it.body()?.let { it1 -> BookTransform.transform(it1) }
+                if(it.isSuccessful){
+                    BookTransform.transform(it.body()!!)
+                }else{
+                    Log.d("aa", it.code().toString())
+                    emptyList()
+                }
             }
     }
 

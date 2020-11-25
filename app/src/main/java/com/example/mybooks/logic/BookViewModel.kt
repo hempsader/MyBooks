@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mybooks.API.BookTransform
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -14,16 +15,21 @@ class BookViewModel(private val repository: Repository) : ViewModel(){
     private val resultSearch = MutableLiveData<List<BookTransform.BookPojo>>()
 
     init {
-      val bookApi = repository.bookApi("Lord of the rings")
-          ?.doOnSuccess {
-              Log.d("aa", it.toString())
-              resultSearch.value = it
-          }
-          ?.flatMapCompletable {
-             repository.insertBooks(it)
-          }
-          ?.subscribe()
+        val bookApi = repository.bookApi("Lord of the rings")
+            .subscribeOn(Schedulers.io())
+            .flatMapCompletable {
+                repository.insertBooks(it)
+            }
+            .andThen(repository.getAllBooks())
+            .share()
 
+        disposable.add(bookApi
+            .doOnError {
+                Log.d("aa", it.message.toString())
+            }
+            .subscribe {
+                resultSearch.postValue(it)
+            })
 
     }
 
