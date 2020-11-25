@@ -21,7 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 
-class FragmentDiscovered : Fragment(){
+class FragmentDiscovered : Fragment(), BookRecycler.IFavourite, BookRecycler.IAlreadyRead{
 
     private val viewModel by lazy {
         ViewModelProvider(this,object: ViewModelProvider.Factory{
@@ -43,10 +43,18 @@ class FragmentDiscovered : Fragment(){
         }
 
         viewModel.getResultSearch().observe(viewLifecycleOwner,{
-            recycler.adapter = BookRecycler(it)
+            recycler.adapter = BookRecycler(it,this, this)
         })
 
 
         return view
+    }
+
+    override fun setBook(book: BookTransform.BookPojo) {
+        viewModel.favouriteClick(book)
+    }
+
+    override fun setBookRead(book: BookTransform.BookPojo) {
+        viewModel.alreadyReadClick(book)
     }
 }

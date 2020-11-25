@@ -10,7 +10,7 @@ import io.reactivex.Single
 @Dao
 interface BookDao {
 
-    @Insert(onConflict =  OnConflictStrategy.REPLACE)
+    @Insert(onConflict =  OnConflictStrategy.IGNORE)
     fun addBooks(books: List<BookTransform.BookPojo>): Completable
 
     @Query("delete  from books")

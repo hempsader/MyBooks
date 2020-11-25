@@ -23,6 +23,9 @@ class Repository (private val context: Context){
 
     fun deleteBooks(): Completable? = dao?.deleteAll()
 
+    fun updatePhoto(book: BookTransform.BookPojo): Single<Int> = dao?.updateBook(book)!!
+
+
     fun getAllBooks(): Observable<List<BookTransform.BookPojo>> = dao?.getAllBooks()!!
 
     fun bookApi(title: String? = ""): Single<List<BookTransform.BookPojo>> {

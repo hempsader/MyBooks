@@ -7,7 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.mybooks.API.BookTransform
 
-@Database(entities = [BookTransform.BookPojo::class], version = 1, exportSchema = false)
+@Database(entities = [BookTransform.BookPojo::class], version = 2, exportSchema = false)
 abstract class BookDatabase : RoomDatabase(){
     abstract fun bookDao(): BookDao
 
