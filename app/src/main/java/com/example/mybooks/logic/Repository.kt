@@ -28,8 +28,8 @@ class Repository (private val context: Context){
 
     fun getAllBooks(): Observable<List<BookTransform.BookPojo>> = dao?.getAllBooks()!!
 
-    fun bookApi(title: String? = ""): Single<List<BookTransform.BookPojo>> {
-        return BookApi.instance().getBooks(title)
+    fun bookApi(title: String? = "", page: Int = 1): Single<List<BookTransform.BookPojo>> {
+        return BookApi.instance().getBooks(title, page)
             .map {
                 if(it.isSuccessful){
                     BookTransform.transform(it.body()!!)

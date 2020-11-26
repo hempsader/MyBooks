@@ -6,13 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mybooks.API.BookTransform
 import com.example.mybooks.R
 import com.example.mybooks.logic.Repository
 import java.util.zip.Inflater
 
-class BookRecycler(private val bookList: List<BookTransform.BookPojo>,private val setBook: IFavourite, private val setAlreadyRead: IAlreadyRead) : RecyclerView.Adapter<BookRecycler.BookHolder>(){
+class BookRecycler(private val setBook: IFavourite, private val setAlreadyRead: IAlreadyRead) :
+    PagedListAdapter<BookTransform.BookPojo ,BookRecycler.BookHolder>(DiffUtill){
 
     interface IFavourite {
         fun setBook(book: BookTransform.BookPojo)
@@ -29,7 +32,6 @@ class BookRecycler(private val bookList: List<BookTransform.BookPojo>,private va
         private  var subject: TextView
         private  var favorite: ImageView
         private  var alreadyRead: ImageView
-
 
         init {
             title = itemView.findViewById(R.id.title)
@@ -65,16 +67,29 @@ class BookRecycler(private val bookList: List<BookTransform.BookPojo>,private va
         }
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookHolder {
         return BookHolder(LayoutInflater.from(parent.context).inflate(R.layout.adapter_book_row,parent,false))
     }
 
     override fun onBindViewHolder(holder: BookHolder, position: Int) {
-        holder.bind(bookList.get(position))
+        val book = getItem(position)?: return
+        holder.bind(book)
     }
 
-    override fun getItemCount(): Int {
-        return bookList.size
+
+}
+
+object DiffUtill: DiffUtil.ItemCallback<BookTransform.BookPojo>(){
+    override fun areItemsTheSame(
+        oldItem: BookTransform.BookPojo,
+        newItem: BookTransform.BookPojo
+    ): Boolean {
+        return oldItem.id == newItem.id
+    }
+    override fun areContentsTheSame(
+        oldItem: BookTransform.BookPojo,
+        newItem: BookTransform.BookPojo
+    ): Boolean {
+      return  oldItem == newItem
     }
 }

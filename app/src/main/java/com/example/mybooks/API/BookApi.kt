@@ -24,5 +24,5 @@ interface BookApi {
     }
 
     @GET("search.json/")
-    fun getBooks(@Query("q") q: String?): io.reactivex.Single<retrofit2.Response<BookResponse>>
+    fun getBooks(@Query("q") q: String?, @Query("page") page: Int): io.reactivex.Single<retrofit2.Response<BookResponse>>
 }
