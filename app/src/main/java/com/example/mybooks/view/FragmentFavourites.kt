@@ -31,12 +31,14 @@ class FragmentFavourites :Fragment(),BookRecycler.IFavourite, BookRecycler.IAlre
     ): View? {
         val view = inflater.inflate(R.layout.fragment_favorites,container,false)
         val recycler = view.findViewById<RecyclerView>(R.id.list)
+        val adapterBook = BookRecycler(this,this)
         recycler.apply {
             layoutManager= LinearLayoutManager(requireContext())
+            adapter = adapterBook
         }
 
-        viewModel.getFavourite().observe(viewLifecycleOwner,{
-            recycler.adapter = BookRecycler(it,this, this)
+        viewModel.favouriteLiveData.observe(viewLifecycleOwner, {
+            adapterBook.submitList(it)
         })
 
         return view

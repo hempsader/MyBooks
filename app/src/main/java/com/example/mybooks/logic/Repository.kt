@@ -2,6 +2,7 @@ package com.example.mybooks.logic
 
 import android.content.Context
 import android.util.Log
+import androidx.paging.DataSource
 import com.example.mybooks.API.BookApi
 import com.example.mybooks.API.BookTransform
 import com.example.mybooks.db.BookDatabase
@@ -26,7 +27,10 @@ class Repository (private val context: Context){
     fun updatePhoto(book: BookTransform.BookPojo): Single<Int> = dao?.updateBook(book)!!
 
 
-    fun getAllBooks(): Observable<List<BookTransform.BookPojo>> = dao?.getAllBooks()!!
+    fun getAllBooks(): DataSource.Factory<Int,BookTransform.BookPojo> = dao?.getAllBooks()!!
+
+    fun getFavourites(): DataSource.Factory<Int,BookTransform.BookPojo> = dao?.favouriteStream()!!
+    fun alreadyRead(): DataSource.Factory<Int,BookTransform.BookPojo> = dao?.alreadtRead()!!
 
     fun bookApi(title: String? = "", page: Int = 1): Single<List<BookTransform.BookPojo>> {
         return BookApi.instance().getBooks(title, page)

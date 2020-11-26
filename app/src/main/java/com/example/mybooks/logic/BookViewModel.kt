@@ -1,65 +1,48 @@
 package com.example.mybooks.logic
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
+import androidx.paging.RxPagedListBuilder
 import com.example.mybooks.API.BookTransform
+import com.example.mybooks.view.BookBoundaryCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
+@SuppressLint("CheckResult")
 class BookViewModel(private val repository: Repository) : ViewModel(){
     private val disposable = CompositeDisposable()
-    private val resultSearch = MutableLiveData<List<BookTransform.BookPojo>>()
-    private val favouriteLiveData = MutableLiveData<List<BookTransform.BookPojo>>()
-    private val alreadyReadLiveData = MutableLiveData<List<BookTransform.BookPojo>>()
+     val resultSearch = MutableLiveData<PagedList<BookTransform.BookPojo>>()
+     val favouriteLiveData = MutableLiveData<PagedList<BookTransform.BookPojo>>()
+     val alreadyReadLiveData = MutableLiveData<PagedList<BookTransform.BookPojo>>()
 
     init {
-        val bookApi = repository.bookApi("Lord of the rings")
-            .retryWhen {
-                it.delay(5, TimeUnit.SECONDS)
-            }
-            .subscribeOn(Schedulers.io())
-            .flatMapCompletable {list->
-                repository.insertBooks(list)
-            }
-            .andThen(repository.getAllBooks())
-            .startWith(repository.getAllBooks().take(1))
-            .share()
+        val config = PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPageSize(20)
+            .build()
 
+        disposable.add(RxPagedListBuilder(repository.getAllBooks(),config)
+            .setBoundaryCallback(BookBoundaryCallback("The lord of the rings", repository))
+            .buildObservable()
+            .doOnError { Log.d("aaa", it.message.toString()) }
+            .subscribe(resultSearch::postValue))
 
-         disposable.add(repository.getAllBooks()
-            .subscribeOn(Schedulers.io())
-            .map {
-                it.filter { it.favourite }
-            }
-            .subscribe{
-                favouriteLiveData.postValue(it)
-            })
+       disposable.add(RxPagedListBuilder(repository.getFavourites(),config)
+           .setBoundaryCallback(BookBoundaryCallback("The lord of the rings", repository))
+            .buildObservable()
+            .subscribe(favouriteLiveData::postValue))
 
-        disposable.add(repository.getAllBooks()
-            .subscribeOn(Schedulers.io())
-            .map {
-                it.filter { it.alreadyRead }
-            }
-            .subscribe{
-                alreadyReadLiveData.postValue(it)
-            })
-
-
-
-
-        disposable.add(bookApi
-            .doOnError {
-                Log.d("aa", it.message.toString())
-            }
-            .subscribe {
-                Log.d("aaa", it.size.toString())
-                resultSearch.postValue(it)
-            })
+       disposable.add(RxPagedListBuilder(repository.alreadyRead(),config)
+           .setBoundaryCallback(BookBoundaryCallback("The lord of the rings", repository))
+            .buildObservable()
+            .subscribe(alreadyReadLiveData::postValue))
 
     }
 
@@ -75,9 +58,7 @@ class BookViewModel(private val repository: Repository) : ViewModel(){
             .subscribe())
     }
 
-    fun getResultSearch(): LiveData<List<BookTransform.BookPojo>> = resultSearch
-    fun getFavourite(): LiveData<List<BookTransform.BookPojo>> = favouriteLiveData
-    fun getAlreadtRead(): LiveData<List<BookTransform.BookPojo>> = alreadyReadLiveData
+
 
     override fun onCleared() {
         disposable.dispose()

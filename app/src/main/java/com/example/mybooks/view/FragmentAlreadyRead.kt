@@ -30,13 +30,15 @@ class FragmentAlreadyRead : Fragment(), BookRecycler.IFavourite, BookRecycler.IA
     ): View? {
         val view = inflater.inflate(R.layout.fragment_already_read,container,false)
         val recycler = view.findViewById<RecyclerView>(R.id.list)
+        val adapterBook = BookRecycler(this,this)
         recycler.apply {
             layoutManager= LinearLayoutManager(requireContext())
+            adapter = adapterBook
         }
 
-        viewModel.getAlreadtRead().observe(viewLifecycleOwner,{
-            recycler.adapter = BookRecycler(it,this, this)
-        })
+       viewModel.alreadyReadLiveData.observe(viewLifecycleOwner, {
+           adapterBook.submitList(it)
+       })
 
 
         return view

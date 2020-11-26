@@ -38,13 +38,15 @@ class FragmentDiscovered : Fragment(), BookRecycler.IFavourite, BookRecycler.IAl
     ): View? {
         val view = inflater.inflate(R.layout.fragment_discovery,container,false)
         val recycler = view.findViewById<RecyclerView>(R.id.list)
+        val adapterBook = BookRecycler(this,this)
         recycler.apply {
             layoutManager= LinearLayoutManager(requireContext())
+            adapter = adapterBook
         }
-
-        viewModel.getResultSearch().observe(viewLifecycleOwner,{
-            recycler.adapter = BookRecycler(it,this, this)
+        viewModel.resultSearch.observe(viewLifecycleOwner, {
+            adapterBook.submitList(it)
         })
+
 
 
         return view
